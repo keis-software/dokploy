@@ -1,11 +1,10 @@
 import type { IncomingMessage } from "node:http";
 import { apiKey } from "@better-auth/api-key";
 import { sso } from "@better-auth/sso";
-import * as bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
-import { admin, organization, twoFactor } from "better-auth/plugins";
+import { admin, organization } from "better-auth/plugins";
 import { and, desc, eq } from "drizzle-orm";
 import { BETTER_AUTH_SECRET, IS_CLOUD } from "../constants";
 import { db } from "../db";
@@ -56,17 +55,13 @@ const { handler, api } = betterAuth({
 			enabled: true,
 			async trustedProviders() {
 				const fromDb = await getTrustedProviders();
-				return ["github", "google", ...fromDb];
+				return ["google", ...fromDb];
 			},
 			allowDifferentEmails: true,
 		},
 	},
 	appName: "Dokploy",
 	socialProviders: {
-		github: {
-			clientId: process.env.GITHUB_CLIENT_ID as string,
-			clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-		},
 		google: {
 			clientId: process.env.GOOGLE_CLIENT_ID as string,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
@@ -103,42 +98,8 @@ const { handler, api } = betterAuth({
 			return [];
 		}
 	},
-	emailVerification: {
-		sendOnSignUp: true,
-		autoSignInAfterVerification: true,
-		sendVerificationEmail: async ({ user, url }) => {
-			if (IS_CLOUD) {
-				await sendEmail({
-					email: user.email,
-					subject: "Verify your email",
-					text: `
-				<p>Click the link to verify your email: <a href="${url}">Verify Email</a></p>
-				`,
-				});
-			}
-		},
-	},
 	emailAndPassword: {
-		enabled: true,
-		autoSignIn: !IS_CLOUD,
-		requireEmailVerification: IS_CLOUD && process.env.NODE_ENV === "production",
-		password: {
-			async hash(password) {
-				return bcrypt.hashSync(password, 10);
-			},
-			async verify({ hash, password }) {
-				return bcrypt.compareSync(password, hash);
-			},
-		},
-		sendResetPassword: async ({ user, url }) => {
-			await sendEmail({
-				email: user.email,
-				subject: "Reset your password",
-				text: `
-				<p>Click the link to reset your password: <a href="${url}">Reset Password</a></p>
-				`,
-			});
-		},
+		enabled: process.env.ENABLE_EMAIL_PASSWORD === "true",
 	},
 	databaseHooks: {
 		user: {
@@ -395,7 +356,6 @@ const { handler, api } = betterAuth({
 			references: "user",
 		}),
 		sso(),
-		twoFactor(),
 		organization({
 			ac,
 			roles: {

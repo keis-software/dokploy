@@ -29,8 +29,6 @@ import { Switch } from "@/components/ui/switch";
 import { getAvatarType, isSolidColorAvatar } from "@/lib/avatar-utils";
 import { generateSHA256Hash, getFallbackAvatarInitials } from "@/lib/utils";
 import { api } from "@/utils/api";
-import { Configure2FA } from "./configure-2fa";
-import { Enable2FA } from "./enable-2fa";
 
 const profileSchema = z.object({
 	email: z
@@ -162,7 +160,6 @@ export const ProfileForm = () => {
 							</CardDescription>
 						</div>
 
-						{!data?.user.twoFactorEnabled ? <Enable2FA /> : <Configure2FA />}
 					</CardHeader>
 
 					<CardContent className="space-y-2 py-8 border-t">
@@ -219,43 +216,6 @@ export const ProfileForm = () => {
 													</FormItem>
 												)}
 											/>
-											<FormField
-												control={form.control}
-												name="currentPassword"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Current Password</FormLabel>
-														<FormControl>
-															<Input
-																type="password"
-																placeholder="Current Password"
-																{...field}
-																value={field.value || ""}
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-											<FormField
-												control={form.control}
-												name="password"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Password</FormLabel>
-														<FormControl>
-															<Input
-																type="password"
-																placeholder="Password"
-																{...field}
-																value={field.value || ""}
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
 											<FormField
 												control={form.control}
 												name="image"
