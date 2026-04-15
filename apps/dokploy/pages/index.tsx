@@ -3,7 +3,7 @@ import { validateRequest } from "@dokploy/server/lib/auth";
 import type { GetServerSidePropsContext } from "next";
 import { type ReactElement } from "react";
 import { OnboardingLayout } from "@/components/layouts/onboarding-layout";
-import { SignInWithGoogle } from "@/components/proprietary/auth/sign-in-with-google";
+import { SignInForm } from "@/components/auth/sign-in-form";
 import { Logo } from "@/components/shared/logo";
 import { CardContent } from "@/components/ui/card";
 import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
@@ -32,8 +32,7 @@ export default function Home() {
 				</p>
 			</div>
 			<CardContent className="p-0">
-				<SignInWithGoogle />
-				<div className="p-2" />
+				<SignInForm />
 			</CardContent>
 		</>
 	);
