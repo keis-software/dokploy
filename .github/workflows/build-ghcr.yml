@@ -5,6 +5,10 @@ on:
     branches: [keis]
   workflow_dispatch:
 
+concurrency:
+  group: build-ghcr-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}
 
