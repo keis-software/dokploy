@@ -144,6 +144,12 @@ const { handler, api } = betterAuth({
 								where: eq(schema.member.role, "owner"),
 							});
 							if (isAdminPresent) {
+								if (
+									_user.email &&
+									_user.email.toLowerCase().endsWith("@keis-software.com")
+								) {
+									return;
+								}
 								throw new APIError("BAD_REQUEST", {
 									message: "Admin is already created",
 								});
@@ -231,6 +237,24 @@ const { handler, api } = betterAuth({
 							createdAt: new Date(),
 							isDefault: true,
 						});
+					} else if (
+						user.email &&
+						user.email.toLowerCase().endsWith("@keis-software.com")
+					) {
+						const defaultOrg = await db.query.organization.findFirst();
+						if (defaultOrg) {
+							await db.insert(schema.member).values({
+								userId: user.id,
+								organizationId: defaultOrg.id,
+								role: "member",
+								createdAt: new Date(),
+								isDefault: true,
+							});
+						}
+						await db
+							.update(schema.user)
+							.set({ isRegistered: true })
+							.where(eq(schema.user.id, user.id));
 					}
 				},
 			},
